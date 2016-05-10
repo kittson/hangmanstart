@@ -1,47 +1,28 @@
 
 /**
-css style sheet for hangman html page homework assignment
-
-html {
-  box-sizing: border-box;
-}
-*, *:before, *:after {
-  box-sizing: inherit;
-}
-
-#box-all {	
-	background-image: url(../images/lightbg.png);	
-}
+css style sheet for hangman html page homework assignment, Booth Kittson
 **/
 
-/** .mainbox {
-
-	height: 200px;
-	margin-top: 40px;
-	width: 60%;
-	margin-left: 20%;
-	margin-right: 20%;
-	position: fixed;
-	border: solid; 
-	border-color: #CA12D6;
-} 
-.mainbox p {
-	font-size: 40px;
-	font-weight: normal;
-	text-align: center;
-	font-family: 'Amatic SC', sans-serif;
-	color: #FFFFFF;
-} **/
-
-
-
-body {
-	
+body {	   
+}
+#bodyParts {
 	background-size: 75%;
 	background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: right;
-    background-color: #011015;
+}
+.stuff {
+	background-color: #011015;
+	background-image: url("../images/bgcatheadpaws.png");
+}
+
+.otherStuff {
+	background-color: #011015;
+	background-image: url("../images/bgWintext.png");
+}
+.test {
+	background-color: #F23EDB;
+	
 }
 p {
 	font-size: 40px;
@@ -66,6 +47,7 @@ h2 {
 	font-family: 'Sunshiney', sans-serif;
 	color: #F0B663;
 }
+
 
 .textboxtop h2 {
 	
@@ -110,5 +92,5 @@ h2 {
 	color: #FFFFFF;
 }
 .mainbox h2 {
-	
+
 }

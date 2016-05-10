@@ -8,9 +8,9 @@
 	<link href='https://fonts.googleapis.com/css?family=Amatic+SC:700' rel='stylesheet' type='text/css'>
 	<link href='https://fonts.googleapis.com/css?family=Sunshiney' rel='stylesheet' type='text/css'>
 </head>
-<body background="images/bg2.png" >
+<body id="bodyParts" class="stuff">
 <div class="textboxtop">
-<h2>Guess the Word Game aka Hangman</h2>
+<p><h2>Guess the Word Game</h2> <h3>aka Hangman</h3></p>
 <h3> type a letter ... </h3>
 </div>
 
@@ -19,7 +19,11 @@
 	</div>
 
 	<script type="text/javascript">
-	 
+	
+// things to do
+// fix good letters showing in bad letter display
+// fix reset of background to work after audio plays
+
 	var pos = 0;
 	var tries = 0;
 	var losses = 0;
@@ -38,34 +42,35 @@
 	var targetLetters = [];
 	var lettersLeft = [];
 	var lengthOfGame = [];
-	
-
-	// sounds
-	var drumCymbal = new Audio('sounds/drumCymbal.mp3');
-	var clownHorn = new Audio('sounds/clownHorn.mp3');
-	var notagain = new Audio('sounds/notagain.mp3');
+	// images
+	//var winImage = "images/bgWin.png";
+	//var bgImage = "images/bg2.png";
+	// sounds	
 	var cheer = new Audio('sounds/cheer.wav');
-	var oneClap = new Audio('sounds/oneClap.wav');
+	var sad = new Audio('sounds/sad.mp3');
+	var click = new Audio('sounds/click.mp3');
+	var meowMix = new Audio('sounds/meowMix.mp3');
 	
 	// figure out target word
-	var dictionary = ['abbreviate','salutations','initiate', 'pattern', 'jazz', 'abruptly'];
+	var dictionary = ['abbreviate','salutations','initiate', 'pattern', 'jazz', 'abruptly', 'roasted','parakeet', 'season' , 'quality' , 'verbose'];
 	//var dictionary = ['zorch', "terrible"];
 	
 	function findTargetWord(dict) {
+		var lPos;
 		tWord = dict[Math.floor(Math.random() * dict.length)];
+		lPos = dict.indexOf(tWord);
+		dict.splice(lPos, 1);
+		console.log( "executed findTargeWord  " + dict);
 		return( tWord);
 	}
-	//var targetWord = dictionary[Math.floor(Math.random() * dictionary.length)];
-	// immediately fix the array so that the next word is not duplicated	
-	//var iDictionary = dictionary.indexOf("targetWord");
-	//if(iDictionary != -1) {
-	//	dictionary.splice(iDictionary, 1);
-	//}
 	
-	//var targetLetters = targetWord.split("");
-	//var lettersLeft = targetWord.split("");
-	//var targetLetters = lettersLeft = targetWord.split("");
 	// functions
+
+	function changeBackground(changeClass){
+		newClassName = changeClass;
+		document.getElementById("bodyParts").className = newClassName;
+	}
+
 	function howManyInArray( array, letter) {
 	  var counter = 0;
 	    for (var i = 0; i < array.length; i++) {
@@ -75,13 +80,25 @@
 	    }
 	    return counter;
 	}
+
+	function isInArray( array, letter) {
+		var count=array.length;
+		for(var i=0;i<count;i++) {
+			if(array[i]===letter){return true;}
+		}
+		return false;
+	}
 	
 	function isLetter(str) {
 		return str.length === 1 && str.match(/[a-z]/i);
-	}
-	
+	}	
 	
 	function gameSetUp(){
+		storeGoodLetters = [];
+		storeBadLetters = [];
+	 	storeAllLetters = [];
+	 	goodGuessLetters = [];
+	 	badGuessLetters = [];
 		targetWord = findTargetWord(dictionary);	
 		targetLetters = targetWord.split("");
 		lettersLeft = targetWord.split("");
@@ -90,11 +107,11 @@
 			goodGuessLetters.push( underBar);
 			console.log( "target word iss " + targetWord);
 		}
+		changeBackground("stuff")
 	}
-	
-	
+		
 	gameSetUp();
-	
+	//changeBackground("test")
 	// Captures Key Clicks
 	document.onkeyup = function(event) {
 
@@ -102,12 +119,12 @@
 	var userInput = String.fromCharCode(event.keyCode).toLowerCase();
 		
 		if ( isLetter(userInput) ) {
-			//console.log( "lettersLeft start  " + lettersLeft.length );
-			//console.log( "length of game at start " + lengthOfGame);
+
 			if ( badGuesses > 0 && goodGuesses > 0 ) {
 				if ( targetLetters.indexOf(userInput)  >= 0 ) {	
 					numLetters = howManyInArray(targetLetters, userInput);
 					for (var i = 0; i < numLetters; i++) {
+						click.play();
 						pos = targetLetters.indexOf(userInput);	
 						goodGuessLetters.splice( pos, 1, userInput);
 						lettersLeft.splice( 0, 1);
@@ -116,12 +133,15 @@
 					}			
 				}
 				else {
-					storeBadLetters.push(userInput);
-					badGuesses--;
-					lengthOfGame--;
-					if ( badGuesses == 3) {
-						notagain.play();
+					if ( isInArray (storeBadLetters, userInput)) {
+						click.play();
 					}
+					else {
+						click.play();
+						storeBadLetters.push(userInput);
+						badGuesses--;
+						lengthOfGame--;
+					}					
 				}
 								
 				console.log( "goodGuessLetters is  " + goodGuessLetters );				
@@ -131,17 +151,23 @@
 				storeAllLetters.push(userInput);		
 		 	}
 
-		 	if ( goodGuesses === 0) {	
-		 			cheer.play();
-		 			goodGuessLetters = [];	 				 			
-		 			gameSetUp();
-		 			
+		 	if ( goodGuesses === 0) {
+		 		changeBackground("otherStuff");	
+		 		cheer.play();
+		 		//meowMix.play();
+		 		gameSetUp();
+		 			 				 			
+		 		//var yar = document.getElementById("Audio");
+				//alert(yar.onended);
+		 		//if (meowMix.onended) {
+		 			//gameSetUp();
+		 		//}
 		 	}
 		 	if ( badGuesses === 0) {
-		 			oneClap.play(2);		 			
-		 			goodGuessLetters = [];
+		 			sad.play();		 			
 		 			gameSetUp();
 		 	}
+		 	
 
 			var html = 				
 				"<div class = 'mainbox' >" +
@@ -149,13 +175,15 @@
 				goodGuessLetters + 
 				"</h1> <p> guesses left " + 
 				lengthOfGame +
+				"</p> <p> Bad Guesses:  " +
+				storeBadLetters +
 				
 				"</p> </div>";
 
 				document.querySelector('#hangmangame').innerHTML = html; 
 		} //if isLetter
 		else {
-			alert ("Oops, alpha characters only!, Please try again.")
+			alert ("Oops, meowalpha characters only!, Please try again.")
 		}
 	} 
 
