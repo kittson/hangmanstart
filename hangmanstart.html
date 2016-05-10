@@ -5,8 +5,14 @@
 	<title>Hangman Game</title>
 	<link rel="stylesheet" href="css/reset.css">
 	<link rel="stylesheet" href="css/style.css">
+	<link href='https://fonts.googleapis.com/css?family=Amatic+SC:700' rel='stylesheet' type='text/css'>
+	<link href='https://fonts.googleapis.com/css?family=Sunshiney' rel='stylesheet' type='text/css'>
 </head>
-<body background="images/bgreversed.png">
+<body background="images/bg2.png" >
+<div class="textboxtop">
+<h2>Guess the Word Game aka Hangman</h2>
+<h3> type a letter ... </h3>
+</div>
 
 	<div id="hangmangame">
 
@@ -18,84 +24,133 @@
 	var tries = 0;
 	var losses = 0;
 	var wins = 0;
+	var pp;
+	var badGuesses = 0;
+	var underBar = '_';	
+	var tmp;
+	var numLetters;
 	var alphaChars = "[a-z]"; // valid chars
 	var storeGoodLetters = [];
 	var storeBadLetters = [];
 	var storeAllLetters = [];
 	var goodGuessLetters = [];
-	var pp;
-	var badGuesses = 0;
-	var underBar = '_';	
+	var targetWord =[];
+	var targetLetters = [];
+	var lettersLeft = [];
+	var lengthOfGame = [];
+	
 
 	// sounds
 	var drumCymbal = new Audio('sounds/drumCymbal.mp3');
 	var clownHorn = new Audio('sounds/clownHorn.mp3');
 	var notagain = new Audio('sounds/notagain.mp3');
+	var cheer = new Audio('sounds/cheer.wav');
+	var oneClap = new Audio('sounds/oneClap.wav');
 	
 	// figure out target word
 	var dictionary = ['abbreviate','salutations','initiate', 'pattern', 'jazz', 'abruptly'];
-	console.log(dictionary);
-	var targetWord = dictionary[Math.floor(Math.random() * dictionary.length)];
-	// immediately fix the array so that the next word is not duplicated	
-	var iDictionary = dictionary.indexOf("targetWord");
-	if(iDictionary != -1) {
-		dictionary.splice(iDictionary, 1);
-	}
-	console.log(dictionary);
-	var targetLetters = targetWord.split("");
-	var lengthOfGame = targetLetters.length;
+	//var dictionary = ['zorch', "terrible"];
 	
-	// functions
-	function isInArray(value, array) {
-	  return array.indexOf(value) > -1;
+	function findTargetWord(dict) {
+		tWord = dict[Math.floor(Math.random() * dict.length)];
+		return( tWord);
 	}
+	//var targetWord = dictionary[Math.floor(Math.random() * dictionary.length)];
+	// immediately fix the array so that the next word is not duplicated	
+	//var iDictionary = dictionary.indexOf("targetWord");
+	//if(iDictionary != -1) {
+	//	dictionary.splice(iDictionary, 1);
+	//}
+	
+	//var targetLetters = targetWord.split("");
+	//var lettersLeft = targetWord.split("");
+	//var targetLetters = lettersLeft = targetWord.split("");
+	// functions
+	function howManyInArray( array, letter) {
+	  var counter = 0;
+	    for (var i = 0; i < array.length; i++) {
+	        if (array[i] === letter) {
+	            counter++;
+	        }
+	    }
+	    return counter;
+	}
+	
 	function isLetter(str) {
 		return str.length === 1 && str.match(/[a-z]/i);
 	}
 	
-	for ( var i = 0; i < targetLetters.length; i++) {
-		goodGuessLetters.push( underBar);
+	
+	function gameSetUp(){
+		targetWord = findTargetWord(dictionary);	
+		targetLetters = targetWord.split("");
+		lettersLeft = targetWord.split("");
+		lengthOfGame = goodGuesses = badGuesses = targetLetters.length;		
+		for ( var i = 0; i < targetLetters.length; i++) {
+			goodGuessLetters.push( underBar);
+			console.log( "target word iss " + targetWord);
+		}
 	}
-
-	console.log("blanks ", goodGuessLetters);
-
+	
+	
+	gameSetUp();
+	
 	// Captures Key Clicks
 	document.onkeyup = function(event) {
 
 	// Determines which exact key was selected. Make it lowercase
 	var userInput = String.fromCharCode(event.keyCode).toLowerCase();
-	//for ( var i = 0; i < targetLetters.length; i++) {
 		
 		if ( isLetter(userInput) ) {
-			if ( userInput) {
-				if ( targetLetters.indexOf(userInput)  > -1) {
-					storeGoodLetters.push(userInput);
-					pos = targetLetters.indexOf(userInput);
-					goodGuessLetters.splice( pos, 1, userInput);
-					console.log( goodGuessLetters );
-					//drumCymbal.play();
+			//console.log( "lettersLeft start  " + lettersLeft.length );
+			//console.log( "length of game at start " + lengthOfGame);
+			if ( badGuesses > 0 && goodGuesses > 0 ) {
+				if ( targetLetters.indexOf(userInput)  >= 0 ) {	
+					numLetters = howManyInArray(targetLetters, userInput);
+					for (var i = 0; i < numLetters; i++) {
+						pos = targetLetters.indexOf(userInput);	
+						goodGuessLetters.splice( pos, 1, userInput);
+						lettersLeft.splice( 0, 1);
+						targetLetters.splice( pos, 1, underBar);					
+						goodGuesses--;		
+					}			
 				}
 				else {
 					storeBadLetters.push(userInput);
-					console.log(userInput);
-					console.log(storeBadLetters);
-					badGuesses++;
+					badGuesses--;
 					lengthOfGame--;
-					//if ( badGuesses == 3) {
-					//	notagain.play();
-					//}
-					//else {
-					//clownHorn.play();
-					//}
+					if ( badGuesses == 3) {
+						notagain.play();
+					}
 				}
-			storeAllLetters.push(userInput);		
+								
+				console.log( "goodGuessLetters is  " + goodGuessLetters );				
+				console.log( "lettersLeft is  " + lettersLeft );
+				console.log( "letter counter length " + lettersLeft.length);
+				console.log( "length of game in loop " + lengthOfGame);
+				storeAllLetters.push(userInput);		
 		 	}
+
+		 	if ( goodGuesses === 0) {	
+		 			cheer.play();
+		 			goodGuessLetters = [];	 				 			
+		 			gameSetUp();
+		 			
+		 	}
+		 	if ( badGuesses === 0) {
+		 			oneClap.play(2);		 			
+		 			goodGuessLetters = [];
+		 			gameSetUp();
+		 	}
+
 			var html = 				
-				"<p>" + 
+				"<div class = 'mainbox' >" +
+				"<h1>" + 
 				goodGuessLetters + 
-				"</p> <p> guesses left " + 
+				"</h1> <p> guesses left " + 
 				lengthOfGame +
-				"</p>";
+				
+				"</p> </div>";
 
 				document.querySelector('#hangmangame').innerHTML = html; 
 		} //if isLetter
